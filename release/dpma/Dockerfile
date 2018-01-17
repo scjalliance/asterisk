@@ -49,4 +49,4 @@ RUN asterisk -V
 VOLUME /var/lib/asterisk/licenses
 
 # Run the program
-CMD ["/usr/sbin/asterisk", "-f", "-U", "asterisk", "-G", "asterisk", "-vvvg"]
+CMD ["/usr/local/bin/cmdhook", "/usr/sbin/asterisk", "-f", "-U", "asterisk", "-G", "asterisk", "-vvvg"]

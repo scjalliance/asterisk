@@ -7,13 +7,19 @@ ARG DPMA_VERSION
 ARG DPMA_ARCH
 
 # --------
-# Stage 1: Import the build artifact
+# Stage 1: Import cmdhook
+# --------
+
+FROM gentlemanautomaton/cmdhook:latest as cmdhook
+
+# --------
+# Stage 2: Import the build artifact
 # --------
 
 FROM scjalliance/asterisk:artifact-ast${ASTERISK_VERSION}-debian${DEBIAN_VERSION}-${RELEASE_TYPE} as astbuild
 
 # --------
-# Stage 2: Build the release image
+# Stage 3: Build the release image
 # --------
 
 # Start with the base image of the requested release type
@@ -23,6 +29,7 @@ FROM scjalliance/asterisk:base-debian${DEBIAN_VERSION}-${RELEASE_TYPE}
 RUN useradd --system asterisk
 
 # Include the build artifacts for the requested version of asterisk
+COPY --from=cmdhook /cmdhook /usr/local/bin/cmdhook
 COPY --from=astbuild /target .
 COPY --from=astbuild /sample /sample
 RUN chown -R asterisk:asterisk /var/*/asterisk
@@ -48,5 +55,11 @@ RUN asterisk -V
 # Map the asterisk configuration storage area
 VOLUME /etc/asterisk
 
+# Copy sample data if we we don't have any configuration
+ENV PRESTART="/bin/sh -c 'test $(ls -A /etc/asterisk | wc -l) -gt 0 || (cp -R /sample/basic-pbx/* / && echo \"Initialized asterisk configuration with basic-pbx sample data\")'"
+
+# Capture SIGTERM and convert it into a graceful stop command
+ENV SIGTERM="/usr/sbin/rasterisk -x 'core stop gracefully'"
+
 # Run the program
-CMD ["/usr/sbin/asterisk", "-f", "-U", "asterisk", "-G", "asterisk", "-vvvg"]
+CMD ["/usr/local/bin/cmdhook", "/usr/sbin/asterisk", "-f", "-U", "asterisk", "-G", "asterisk", "-vvvg"]
