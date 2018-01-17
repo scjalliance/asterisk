@@ -64,7 +64,9 @@ RUN wget -qO- https://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/
 ENV KVERS=${KERNEL_VERSION}-${KERNEL_ARCH}
 
 # Compile
-RUN make -j"$(nproc)" all
+RUN make -j"$(nproc)"
+RUN make -j"$(nproc)" install
+RUN make -j"$(nproc)" config
 
 # Create the target directory
 WORKDIR /target
