@@ -21,6 +21,7 @@ FROM scjalliance/asterisk:${ASTERISK_VERSION}-debian${DEBIAN_VERSION}-${RELEASE_
 
 # Include the dpma artifacts
 COPY --from=dpma /target .
+COPY --from=dpma /sample /sample
 
 # Ensure proper file ownership
 RUN chown -R asterisk:asterisk /var/*/asterisk
@@ -47,6 +48,9 @@ RUN asterisk -V
 
 # Map the license key storage area
 VOLUME /var/lib/asterisk/licenses
+
+# Copy sample data if we we don't have any configuration
+ENV PRESTART="/bin/sh -c 'test $(ls -A /etc/asterisk | wc -l) -gt 0 || (cp -R /sample/basic-pbx/* /sample/dpma/* / && echo \"Initialized asterisk configuration with basic-pbx and dpma sample data\")'"
 
 # Run the program
 CMD ["/usr/local/bin/cmdhook", "/usr/sbin/asterisk", "-f", "-U", "asterisk", "-G", "asterisk", "-vvvg"]
