@@ -19,6 +19,15 @@ FROM scjalliance/asterisk:artifact-dpma${DPMA_VERSION}-ast${DPMA_ASTERISK_BRANCH
 # Start with the standard release image of the requested release type
 FROM scjalliance/asterisk:${ASTERISK_VERSION}-debian${DEBIAN_VERSION}-${RELEASE_TYPE}
 
+# Install packages for operation of dpma
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y --no-install-recommends \
+            libavahi-client3 \
+            avahi-daemon \
+            && \
+    apt-get purge -y --auto-remove && rm -rf /var/lib/apt/lists/*
+
 # Include the dpma artifacts
 COPY --from=dpma /target .
 COPY --from=dpma /sample /sample
