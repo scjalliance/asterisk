@@ -2,13 +2,13 @@ ASTERISK_BRANCH=$1
 ASTERISK_VERSION=$2
 DEBIAN_VERSION="9"
 DAHDI_VERSION="2.11.1"
-DPMA_VERSION="3.4.3"
+DPMA_VERSION="3.4.5"
 
 DIR=$(dirname "$(readlink -f "$0")")
 
 if [ -z "$ASTERISK_BRANCH" ] || [ -z "$ASTERISK_VERSION" ]; then
 	echo "usage: $0 asterisk_branch asterisk_version"
-	echo "example: $0 15 15.1.5"
+	echo "example: $0 15 15.3.0"
 	exit
 fi
 
